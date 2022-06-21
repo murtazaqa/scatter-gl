@@ -122,6 +122,7 @@ export class ScatterGL {
 
   render(dataset: Dataset) {
     this.updateDataset(dataset);
+    this.clearVisualizers();
     this.setVisualizers();
 
     if (this.rotateOnStart) {
@@ -129,8 +130,21 @@ export class ScatterGL {
     }
   }
 
+  private clearVisualizers() {
+    this.canvasLabelsVisualizer = undefined;
+    this.labels3DVisualizer = undefined;
+    this.pointVisualizer = undefined;
+    this.polylineVisualizer = undefined;
+    this.spritesheetVisualizer = undefined;
+    this.scatterPlot.disposeAllVisualizers();
+  }
+
   private renderScatterPlot() {
     if (this.dataset) this.scatterPlot.render();
+  }
+
+  resetZoom() {
+    this.scatterPlot.resetZoom();
   }
 
   setRenderMode(renderMode: RenderMode) {

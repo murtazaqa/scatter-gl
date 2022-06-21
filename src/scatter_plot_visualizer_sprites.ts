@@ -334,13 +334,10 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     const {threshold, enabled} = this.styles.fog;
 
     if (sceneIs3D && enabled) {
-      const n = this.worldSpacePointPositions.length / XYZ_NUM_ELEMENTS;
       this.fog.near = nearestPointZ;
-      // If there are fewer points we want less fog. We do this
-      // by making the "far" value (that is, the distance from the camera to the
-      // far edge of the fog) proportional to the number of points.
-      let multiplier = 2 - Math.min(n, threshold) / threshold;
-      this.fog.far = farthestPointZ * multiplier;
+      const delta = nearestPointZ - farthestPointZ;
+
+      this.fog.far = nearestPointZ - threshold * delta;
     } else {
       this.fog.near = Infinity;
       this.fog.far = Infinity;
@@ -376,7 +373,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private setSpriteSheet(spriteSheetParams: SpriteSheetParams) {
-    const {spriteDimensions, spriteIndices, onImageLoad} = spriteSheetParams;
+    const {spriteDimensions, onImageLoad} = spriteSheetParams;
     let spriteSheet = spriteSheetParams.spritesheetImage;
 
     // Load the sprite sheet as an image if a URL is supplied
@@ -396,6 +393,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       onImageLoad();
     });
     this.spriteDimensions = spriteDimensions;
+
+    this.setSpriteIndexBuffer();
+  }
+
+  private setSpriteIndexBuffer() {
+    const {spriteIndices} = this.spriteSheetParams;
+
     this.spriteIndexBufferAttribute = new THREE.BufferAttribute(
       spriteIndices,
       INDEX_NUM_ELEMENTS
@@ -423,7 +427,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     }
 
     if (this.spriteSheetParams) {
-      this.setSpriteSheet(this.spriteSheetParams);
+      this.setSpriteIndexBuffer();
     }
 
     this.renderMaterial = this.createRenderMaterial();
